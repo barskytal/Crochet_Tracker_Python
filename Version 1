@@ -2,20 +2,20 @@
 import time
 import json
 
-#saves a named attern to patterns.json
+#saves a named pattern to patterns.json
 def save_pattern(name, pattern):
     try:
-        #loads any existing patterns from a file
+#loads any existing patterns from a file
         with open("patterns.json", "r") as f:
             patterns = json.load(f)
-#creates an empty dictionary if a file is not found
-except FileNotFoundError:
+    #creates an empty dictionary if a file is not found
+    except FileNotFoundError:
         patterns = {}
     #either will add or update a file with the new given name
     patterns[name] = pattern
-
-#saves updated patterns to a file
-with open("patterns.json", "w") as f:
+    
+    #saves updated patterns to a file
+    with open("patterns.json", "w") as f:
         json.dump(patterns, f)
     print(f"Pattern '{name}' saved.")
 
@@ -25,7 +25,7 @@ def load_pattern(name):
         # Load existing patterns from file
         with open("patterns.json", "r") as f:
             patterns = json.load(f)
-#returns the requested pattern
+        #returns the requested pattern
         if name in patterns:
             print(f"Pattern '{name}' loaded.")
             return patterns[name]
@@ -40,7 +40,8 @@ def input_pattern():
     name = input("Enter the name for your pattern: ")
     rows = int(input("Enter the number of rows in your pattern: "))
     pattern = []
-#collects the number of stitches in the row and to save the new pattern
+    
+    #collects the number of stitches in the row and to save the new pattern
     for i in range(rows):
         stitches = int(input(f"Enter the number of stitches in row {i + 1}: "))
         pattern.append(stitches)
@@ -54,44 +55,45 @@ def crochet_counter(pattern):
     total_elapsed_time = 0
 
     print("Type 'start' to begin the stopwatch. Press Enter after each stitch to increment the count. Type 'undo' to undo the last stitch. Type 'break' to take a break. Type 'resume' to resume after a break. Type 'stop' to end and get the total time and count.")
+
     stopwatch_running = False
     while True:
         user_input = input().lower()
-#starts the stopwatch
+        #starts the stopwatch
         if user_input == 'start' and not stopwatch_running:
             start_time = time.time()
             stopwatch_running = True
             print("Stopwatch started.")
             continue
-#stops the stopwatch
+         #stops the stopwatch
         elif user_input == 'stop' and stopwatch_running:
             break
-# pauses the stopwatch 
+        # pauses the stopwatch 
         elif user_input == 'break' and stopwatch_running:
             end_time = time.time()
             total_elapsed_time += end_time - start_time
             stopwatch_running = False
             print("Stopwatch paused. Type 'resume' to continue.")
             continue
-# resumes the stopwatch 
+        # resumes the stopwatch 
         elif user_input == 'resume' and not stopwatch_running:
             start_time = time.time()
             stopwatch_running = True
             print("Stopwatch resumed.")
             continue
-#undo the last stitch 
+        #undo the last stitch 
         elif user_input == 'undo':
             if current_stitch > 1:
                 current_stitch -= 1
             elif current_row > 1:
                 current_row -= 1
-#if most go to the previous row, will jump to the previous row 
+                #if most go to the previous row, will jump to the previous row 
                 current_stitch = pattern[current_row - 1]
             else:
                 print("Nothing to undo.")
             print(f"Row {current_row}, Stitch {current_stitch}")
             continue
-#increments the stitch count 
+        #increments the stitch count 
         if stopwatch_running:
             current_stitch += 1
             if current_stitch > pattern[current_row - 1]:
@@ -101,7 +103,7 @@ def crochet_counter(pattern):
                     print("You have completed the pattern!")
                     break
             print(f"Row {current_row}, Stitch {current_stitch}")
-# Updates the total elapsed time with the time spent crocheting
+    # Updates the total elapsed time with the time spent crocheting
     if stopwatch_running:
         end_time = time.time()
         total_elapsed_time += end_time - start_time
@@ -114,16 +116,16 @@ def main():
     while True:
         choice = input("Do you want to (l)oad a pattern, (e)nter a new pattern, or (q)uit? ").lower()
         if choice == 'l':
-# Loads the requested pattern
+            # Loads the requested pattern
             name = input("Enter the name of the pattern to load: ")
             pattern = load_pattern(name)
             if pattern is not None:
                 crochet_counter(pattern)
         elif choice == 'e':
-# Start the crochet counter with the loaded pattern
+         # Start the crochet counter with the loaded pattern
             pattern = input_pattern()
             crochet_counter(pattern)
-# Quit the program
+        # Quit the program
         elif choice == 'q':
             break
         else:
