@@ -1,0 +1,123 @@
+#imports time module and json module to handle JSON files and measure elapsed time
+import time
+import json
+
+#saves a named attern to patterns.json
+def save_pattern(name, pattern):
+    try:
+        #loads any existing patterns from a file
+        with open("patterns.json", "r") as f:
+            patterns = json.load(f)
+#creates an empty dictionary if a file is not found
+except FileNotFoundError:
+        patterns = {}
+    #either will add or update a file with the new given name
+    patterns[name] = pattern
+
+#saves updated patterns to a file
+with open("patterns.json", "w") as f:
+        json.dump(patterns, f)
+    print(f"Pattern '{name}' saved.")
+
+#loads and returns patterns with the specific names from patterns.json
+def load_pattern(name):
+    try:
+        # Load existing patterns from file
+        with open("patterns.json", "r") as f:
+            patterns = json.load(f)
+        if name in patterns:
+            print(f"Pattern '{name}' loaded.")
+            return patterns[name]
+        else:
+            print(f"No pattern found with the name '{name}'.")
+            return None
+    except FileNotFoundError:
+        print("No saved patterns found.")
+        return None
+
+def input_pattern():
+    name = input("Enter the name for your pattern: ")
+    rows = int(input("Enter the number of rows in your pattern: "))
+    pattern = []
+    for i in range(rows):
+        stitches = int(input(f"Enter the number of stitches in row {i + 1}: "))
+        pattern.append(stitches)
+    save_pattern(name, pattern)
+    return pattern
+
+def crochet_counter(pattern):
+    current_row = 1
+    current_stitch = 0
+    total_elapsed_time = 0
+
+    print("Type 'start' to begin the stopwatch. Press Enter after each stitch to increment the count. Type 'undo' to undo the last stitch. Type 'break' to take a break. Type 'resume' to resume after a break. Type 'stop' to end and get the total time and count.")
+
+    stopwatch_running = False
+    while True:
+        user_input = input().lower()
+
+        if user_input == 'start' and not stopwatch_running:
+            start_time = time.time()
+            stopwatch_running = True
+            print("Stopwatch started.")
+            continue
+        elif user_input == 'stop' and stopwatch_running:
+            break
+        elif user_input == 'break' and stopwatch_running:
+            end_time = time.time()
+            total_elapsed_time += end_time - start_time
+            stopwatch_running = False
+            print("Stopwatch paused. Type 'resume' to continue.")
+            continue
+        elif user_input == 'resume' and not stopwatch_running:
+            start_time = time.time()
+            stopwatch_running = True
+            print("Stopwatch resumed.")
+            continue
+        elif user_input == 'undo':
+            if current_stitch > 1:
+                current_stitch -= 1
+            elif current_row > 1:
+                current_row -= 1
+                current_stitch = pattern[current_row - 1]
+            else:
+                print("Nothing to undo.")
+            print(f"Row {current_row}, Stitch {current_stitch}")
+            continue
+
+        if stopwatch_running:
+            current_stitch += 1
+            if current_stitch > pattern[current_row - 1]:
+                current_row += 1
+                current_stitch = 1
+                if current_row > len(pattern):
+                    print("You have completed the pattern!")
+                    break
+            print(f"Row {current_row}, Stitch {current_stitch}")
+
+    if stopwatch_running:
+        end_time = time.time()
+        total_elapsed_time += end_time - start_time
+
+    total_stitches = sum(pattern[:current_row - 1]) + current_stitch
+    print(f"Total time: {total_elapsed_time:.2f} seconds")
+    print(f"Total stitches: {total_stitches}")
+
+def main():
+    while True:
+        choice = input("Do you want to (l)oad a pattern, (e)nter a new pattern, or (q)uit? ").lower()
+        if choice == 'l':
+            name = input("Enter the name of the pattern to load: ")
+            pattern = load_pattern(name)
+            if pattern is not None:
+                crochet_counter(pattern)
+        elif choice == 'e':
+            pattern = input_pattern()
+            crochet_counter(pattern)
+        elif choice == 'q':
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
